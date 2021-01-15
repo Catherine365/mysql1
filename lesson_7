@@ -1,0 +1,146 @@
+-- 1 Составьте список пользователей users, которые осуществили хотя бы один заказ orders в интернет магазине
+
+use practise;
+
+drop table if exists users;
+
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) COMMENT 'Имя покупателя',
+  birthday_at DATE COMMENT 'Дата рождения',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) COMMENT = 'Покупатели';
+
+INSERT INTO users (name, birthday_at) VALUES
+  ('Геннадий', '1990-10-05'),
+  ('Наталья', '1984-11-12'),
+  ('Александр', '1985-05-20'),
+  ('Сергей', '1988-02-14'),
+  ('Иван', '1998-01-12'),
+  ('Мария', '1992-08-29');
+
+ 
+CREATE TABLE orders (
+  id SERIAL PRIMARY KEY,
+  user_id INT UNSIGNED,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY index_of_user_id(user_id)
+) COMMENT = 'Заказы';
+
+INSERT INTO `orders` (`id`, `user_id`, `created_at`, `updated_at`) VALUES ('1', 1, '1989-11-22 12:37:16', '1999-11-13 18:10:54');
+INSERT INTO `orders` (`id`, `user_id`, `created_at`, `updated_at`) VALUES ('2', 2, '1999-05-26 06:45:59', '1995-04-30 07:46:36');
+INSERT INTO `orders` (`id`, `user_id`, `created_at`, `updated_at`) VALUES ('3', 3, '1997-07-27 15:45:47', '2011-07-29 18:37:32');
+INSERT INTO `orders` (`id`, `user_id`, `created_at`, `updated_at`) VALUES ('4', 4, '2006-06-13 03:09:11', '1973-01-05 09:23:00');
+INSERT INTO `orders` (`id`, `user_id`, `created_at`, `updated_at`) VALUES ('5', 5, '1992-09-24 10:31:28', '2016-10-07 15:30:53');
+
+select * from orders;
+ 
+select u.name 
+from users as u 
+inner join
+orders as o
+on 
+(o.user_id = u.id);
+
+
+-- 2 Выведите список товаров products и разделов catalogs, который соответствует товару
+
+DROP TABLE IF EXISTS catalogs;
+CREATE TABLE catalogs (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) COMMENT 'Название раздела',
+  UNIQUE unique_name(name(10))
+) COMMENT = 'Разделы интернет-магазина';
+
+INSERT INTO catalogs VALUES
+  (NULL, 'Процессоры'),
+  (NULL, 'Материнские платы'),
+  (NULL, 'Видеокарты'),
+  (NULL, 'Жесткие диски'),
+  (NULL, 'Оперативная память');
+ 
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) COMMENT 'Название',
+  desription TEXT COMMENT 'Описание',
+  price DECIMAL (11,2) COMMENT 'Цена',
+  catalog_id INT UNSIGNED,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY index_of_catalog_id (catalog_id)
+) COMMENT = 'Товарные позиции';
+
+INSERT INTO products
+  (name, price, catalog_id)
+VALUES
+  ('Intel Core i3-8100', '7890.00', '1'),
+  ('Intel Core i5-7400', '12700.00', '1'),
+  ('AMD FX-8320E', '4780.00', '1'),
+  ('AMD FX-8320', '7120.00', '1'),
+  ('ASUS ROG MAXIMUS X HERO', '19310.00', '2'),
+  ('Gigabyte H310M S2H', '4790.00', '2'),
+  ('MSI B250M GAMING PRO', '5060.00', '2');
+ 
+ select 
+ p.name,
+ c.name
+ from products as p
+ join
+ catalogs as c 
+ on (p.catalog_id = c.id);
+
+
+-- 3 (по желанию) Пусть имеется таблица рейсов flights (id, from, to) и таблица городов cities (label, name). 
+-- Поля from, to и label содержат английские названия городов, поле name — русское. 
+-- Выведите список рейсов flights с русскими названиями городов.
+
+create table flights(
+	id int(10), 
+	from_city varchar(50), 
+	to_city varchar(50)
+	);
+
+insert into flights values
+('1', 'moscow', 'Omsk'),
+('2', 'novgorod', 'kazan'),
+('3','irkutsk','moscow'),
+('4','omsk','irkutsk'),
+('5','moscow','kazan');
+
+
+drop table cities;
+
+create table cities(
+	id serial primary key, 
+	label varchar(50), 
+	name varchar(50)
+	);
+
+insert into cities values
+('1', 'moscow', 'Москва'),
+('2', 'irkutsk', 'Иркутск'),
+('3','novgorod','Новгород'),
+('4','kazan','Казань'),
+('5','omsk','Омск');
+
+update 
+flights
+join
+cities 
+on 
+from_city = label
+set 
+from_city = name;
+
+update 
+flights
+join
+cities 
+on 
+to_city = label
+set 
+to_city = name;
+
+select * from flights;
